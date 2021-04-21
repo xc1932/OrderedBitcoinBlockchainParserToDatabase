@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderedBitcoinBlockchainParserToDatabase", "OrderedBitcoinBlockchainParserToDatabase\OrderedBitcoinBlockchainParserToDatabase.csproj", "{A2C503DC-B8C0-47F0-97D7-5854B189A49B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderedBitcoinBlockchainParser", "OrderedBitcoinBlockchainParser\OrderedBitcoinBlockchainParser.csproj", "{32C99347-06BD-405A-B3C7-198330DA93E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitcoinUTXOSlicer", "BitcoinUTXOSlicer\BitcoinUTXOSlicer.csproj", "{BA756FAB-D359-4516-96F6-0FC571220F5C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserToDatabaseTest", "ParserToDatabaseTest\ParserToDatabaseTest.csproj", "{4E5852E2-05BD-405B-8873-A57C9C9889DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2C503DC-B8C0-47F0-97D7-5854B189A49B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2C503DC-B8C0-47F0-97D7-5854B189A49B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2C503DC-B8C0-47F0-97D7-5854B189A49B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2C503DC-B8C0-47F0-97D7-5854B189A49B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C99347-06BD-405A-B3C7-198330DA93E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C99347-06BD-405A-B3C7-198330DA93E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C99347-06BD-405A-B3C7-198330DA93E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C99347-06BD-405A-B3C7-198330DA93E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA756FAB-D359-4516-96F6-0FC571220F5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA756FAB-D359-4516-96F6-0FC571220F5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA756FAB-D359-4516-96F6-0FC571220F5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA756FAB-D359-4516-96F6-0FC571220F5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E5852E2-05BD-405B-8873-A57C9C9889DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E5852E2-05BD-405B-8873-A57C9C9889DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E5852E2-05BD-405B-8873-A57C9C9889DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E5852E2-05BD-405B-8873-A57C9C9889DC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80E81F90-65AE-441C-9D91-0D460D520878}
+	EndGlobalSection
+EndGlobal
