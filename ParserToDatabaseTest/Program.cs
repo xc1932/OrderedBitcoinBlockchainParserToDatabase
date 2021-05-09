@@ -26,7 +26,7 @@ namespace ParserToDatabaseTest
             //"BPC_655077_2020年11月02日04时06分58秒.dat.rar", @"G:\writedatabase\sliceStateFileForDatabase", "UtxoSlice_655077_2020年11月02日04时06分58秒.dat.rar", @"G:\writedatabase\opreturnOutputFileForDatabase",
             //Configuration_Class.Month, 3, new DateTime(2021, 12, 12), 681572, sqlConnectionString);
 
-            orderedBitcoinBlockchainParserToDatabase.run();            
+            //orderedBitcoinBlockchainParserToDatabase.run();            
 
         }
     }
