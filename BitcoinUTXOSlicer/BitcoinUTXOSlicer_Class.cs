@@ -150,6 +150,7 @@ namespace BitcoinUTXOSlicer
         //b.执行铸币交易(更新)
         public void execute_CoinbaseTransaction(Transaction transaction)
         {
+            //Console.WriteLine("交易Hash："+transaction.GetHash());
             uint indexOfOutput = 0;
             foreach (TxOut transactionOutput in transaction.Outputs)
             {
@@ -157,33 +158,14 @@ namespace BitcoinUTXOSlicer
                 string txhash = transaction.GetHash().ToString();
                 ulong value = transactionOutput.Value;
                 string script = new ByteArray(transactionOutput.ScriptPubKey.ToBytes()).ToString();
-                if (value == 0)
+                if (isOpreturn(transactionOutput))
                 {
-                    if (transactionOutput.ScriptPubKey.ToBytes()[0] == 0x6a || transactionOutput.ScriptPubKey.ToBytes()[1] == 0x6a)
-                    {
-                        opreturnOutputItem_Class opreturnOutputItem = new opreturnOutputItem_Class(txhash, indexOfOutput, value, script);
-                        opreturnOutputLinkedList.AddLast(opreturnOutputItem);
-                    }
-                    else
-                    {
-                        UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面                        
-                        if (!utxoDictionary.ContainsKey(txhashAndIndex))
-                        {
-                            unSpentTxOutItem.TxOutID.Add(nextTxOutputID);
-                            utxoDictionary.Add(txhashAndIndex, unSpentTxOutItem);
-                        }
-                        else
-                        {
-                            utxoDictionary[txhashAndIndex].TxOutID.Add(nextTxOutputID);
-                            utxoDictionary[txhashAndIndex].utxoItemAmount++;
-                            sameTransactionCount++;
-                        }
-                        nextTxOutputID++;
-                    }
+                    opreturnOutputItem_Class opreturnOutputItem = new opreturnOutputItem_Class(txhash, indexOfOutput, value, script);
+                    opreturnOutputLinkedList.AddLast(opreturnOutputItem);
                 }
                 else
                 {
-                    UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面
+                    UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面                        
                     if (!utxoDictionary.ContainsKey(txhashAndIndex))
                     {
                         unSpentTxOutItem.TxOutID.Add(nextTxOutputID);
@@ -196,7 +178,7 @@ namespace BitcoinUTXOSlicer
                         sameTransactionCount++;
                     }
                     nextTxOutputID++;
-                }
+                }                               
                 indexOfOutput++;
             }
         }
@@ -233,33 +215,14 @@ namespace BitcoinUTXOSlicer
                 string txhash = transaction.GetHash().ToString();
                 ulong value = transactionOutput.Value;
                 string script = new ByteArray(transactionOutput.ScriptPubKey.ToBytes()).ToString();
-                if (value == 0)
+                if (isOpreturn(transactionOutput))
                 {
-                    if (transactionOutput.ScriptPubKey.ToBytes()[0] == 0x6a || transactionOutput.ScriptPubKey.ToBytes()[1] == 0x6a)
-                    {
-                        opreturnOutputItem_Class opreturnOutputItem = new opreturnOutputItem_Class(txhash, indexOfOutput, value, script);
-                        opreturnOutputLinkedList.AddLast(opreturnOutputItem);
-                    }
-                    else
-                    {
-                        UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面
-                        if (!utxoDictionary.ContainsKey(txhashAndIndex))
-                        {
-                            unSpentTxOutItem.TxOutID.Add(nextTxOutputID);
-                            utxoDictionary.Add(txhashAndIndex, unSpentTxOutItem);
-                        }
-                        else
-                        {
-                            utxoDictionary[txhashAndIndex].TxOutID.Add(nextTxOutputID);
-                            utxoDictionary[txhashAndIndex].utxoItemAmount++;
-                            sameTransactionCount++;
-                        }
-                        nextTxOutputID++;
-                    }
+                    opreturnOutputItem_Class opreturnOutputItem = new opreturnOutputItem_Class(txhash, indexOfOutput, value, script);
+                    opreturnOutputLinkedList.AddLast(opreturnOutputItem);
                 }
                 else
                 {
-                    UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面
+                    UTXOItem_Class unSpentTxOutItem = new UTXOItem_Class(txhash, indexOfOutput, value, script);//可以放在if里面                        
                     if (!utxoDictionary.ContainsKey(txhashAndIndex))
                     {
                         unSpentTxOutItem.TxOutID.Add(nextTxOutputID);
@@ -272,7 +235,7 @@ namespace BitcoinUTXOSlicer
                         sameTransactionCount++;
                     }
                     nextTxOutputID++;
-                }
+                }                               
                 indexOfOutput++;
             }
         }
@@ -541,6 +504,31 @@ namespace BitcoinUTXOSlicer
             {
                 Environment.Exit(0);
             }
+        }
+
+        //----9.判断opreturn----
+        public bool isOpreturn(TxOut txOut)
+        {
+            bool opreturnMark = false;
+            int scriptLen = txOut.ScriptPubKey.ToBytes().Length;
+            if (scriptLen >= 1)
+            {
+                if (txOut.ScriptPubKey.ToBytes()[0] == 0x6a)
+                {
+                    opreturnMark = true;
+                }
+                else
+                {
+                    if (scriptLen >= 2)
+                    {
+                        if (txOut.ScriptPubKey.ToBytes()[0] == 0x00 && txOut.ScriptPubKey.ToBytes()[1] == 0x6a)
+                        {
+                            opreturnMark = true;
+                        }
+                    }
+                }
+            }
+            return opreturnMark;
         }
 
         ////II.*****数据库初始化*****
@@ -913,6 +901,7 @@ namespace BitcoinUTXOSlicer
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxSliceID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -941,6 +930,7 @@ namespace BitcoinUTXOSlicer
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxSliceRecordID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -968,6 +958,7 @@ namespace BitcoinUTXOSlicer
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_SliceUTXOTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -998,6 +989,7 @@ namespace BitcoinUTXOSlicer
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Insert_SliceInfo_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1052,6 +1044,7 @@ namespace BitcoinUTXOSlicer
                 string TSqlStatement = "INSERT INTO[dbo].[SliceUTXO] (SliceRecordID, SliceID,TxOutID)" +
                                         "SELECT nc.SliceRecordID,nc.SliceID,nc.TxOutID FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[SliceUTXOTableType]";
@@ -1166,6 +1159,7 @@ namespace BitcoinUTXOSlicer
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Insert_SliceUTXO_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;

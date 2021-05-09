@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="BitcoinSVCryptor" Version="0.1.0" />
+    <PackageReference Include="RIPEMD" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 

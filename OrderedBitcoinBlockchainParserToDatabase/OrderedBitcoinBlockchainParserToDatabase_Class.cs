@@ -878,6 +878,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxProcessedBlockID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -906,6 +907,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxBlockID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -934,6 +936,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxTransactionID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -962,6 +965,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxTransactionInputID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -990,6 +994,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxTransactionOutputID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1018,6 +1023,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxOpreturnOutputID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1046,6 +1052,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Get_MaxAddressID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1074,6 +1081,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_BlockTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1090,6 +1098,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_TransactionTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1106,6 +1115,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_TransactionInputTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1122,6 +1132,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_TransactionOutputTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1138,6 +1149,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             {
                 sqlConnection.Open();
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Restore_OpreturnOutputTable_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1164,8 +1176,8 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             using (SqlConnection sqlConnection = new SqlConnection(sqlConnectionString))
             {
                 sqlConnection.Open();
-
                 SqlCommand cmd = new SqlCommand();
+                cmd.CommandTimeout = 0;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = "Update_ProcessedBlockID_Proc";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1434,6 +1446,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 foreach (TxIn txIn in transaction.Inputs)
                 {
                     string sourceTxhashAndIndex = txIn.PrevOut.ToString();
+                    //Console.WriteLine(transaction.GetHash()+"***"+ sourceTxhashAndIndex);
                     Int64 sourceTxOutID = get_SourceTxOutID(sourceTxhashAndIndex);
                     addOneRowToTransactionInputDataTable(dataTable,txIn, nextTxInputID, txID, sourceTxOutID, LittleEndian);
                     nextTxInputID++;
@@ -1448,24 +1461,16 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             foreach (TxOut txOut in transaction.Outputs)
             {
                 ulong value = txOut.Value;
-                if (value == 0)
+                if (isOpreturn(txOut))
                 {
-                    if (txOut.ScriptPubKey.ToBytes()[0] == 0x6a || txOut.ScriptPubKey.ToBytes()[1] == 0x6a)
-                    {
-                        addOneRowToOpreturnOutputDataTable(opreturnDataTable, txOut, nextOpreturnOutputID, txID, outputIndex, LittleEndian);
-                        nextOpreturnOutputID++;
-                    }
-                    else
-                    {
-                        addOneRowToTransactionOutputDataTable(outputDataTable, txOut, nextTxOutputID, txID, outputIndex, LittleEndian);
-                        nextTxOutputID++;
-                    }
+                    addOneRowToOpreturnOutputDataTable(opreturnDataTable, txOut, nextOpreturnOutputID, txID, outputIndex, LittleEndian);
+                    nextOpreturnOutputID++;
                 }
                 else
                 {
                     addOneRowToTransactionOutputDataTable(outputDataTable, txOut, nextTxOutputID, txID, outputIndex, LittleEndian);
                     nextTxOutputID++;
-                }
+                }             
                 outputIndex++;
             }
         }
@@ -1482,6 +1487,31 @@ namespace OrderedBitcoinBlockchainParserToDatabase
             nextTransactionID++;
         }
 
+        //i.判断opreturn
+        public bool isOpreturn(TxOut txOut)
+        {
+            bool opreturnMark = false;
+            int scriptLen = txOut.ScriptPubKey.ToBytes().Length;
+            if (scriptLen >= 1)
+            {
+                if (txOut.ScriptPubKey.ToBytes()[0] == 0x6a)
+                {
+                    opreturnMark = true;
+                }
+                else
+                {
+                    if (scriptLen >= 2)
+                    {
+                        if (txOut.ScriptPubKey.ToBytes()[0] == 0x00 && txOut.ScriptPubKey.ToBytes()[1] == 0x6a)
+                        {
+                            opreturnMark = true;
+                        }
+                    }
+                }
+            }
+            return opreturnMark;
+        }
+
         //----6.表值入库函数----
         //a.将Block表值写入到数据库中
         public void blockTableValuedToDB(DataTable dataTable)
@@ -1491,6 +1521,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 string TSqlStatement = "INSERT INTO[dbo].[Block] (BlockID,BlockHeight,BlockHash,PreviousBlockHash,BlockTimestamp,BlockVersion,BlockSize,Bits,Nonce,TxCount,HashMerkleRoot,BlockchainFileId)" +
                                         "SELECT nc.BlockID,nc.BlockHeight,nc.BlockHash,nc.PreviousBlockHash,nc.BlockTimestamp,nc.BlockVersion,nc.BlockSize,nc.Bits,nc.Nonce,nc.TxCount,nc.HashMerkleRoot,nc.BlockchainFileId FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[BlockTableType]";
@@ -1521,6 +1552,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 string TSqlStatement = "INSERT INTO[dbo].[Transaction] (TxID, TxHash, BlockID, TxVersion, TxInCount, TxOutCount, LockTime)" +
                                         "SELECT nc.TxID, nc.TxHash, nc.BlockID, nc.TxVersion, nc.TxInCount, nc.TxOutCount, nc.LockTime FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[TransactionTableType]";
@@ -1551,6 +1583,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 string TSqlStatement = "INSERT INTO[dbo].[TransactionInput] (TxInID, TxID, SourceTxOutID, Sequence, InputScript)" +
                                         "SELECT nc.TxInID, nc.TxID, nc.SourceTxOutID, nc.Sequence, nc.InputScript FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[TransactionInputTableType]";
@@ -1581,6 +1614,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 string TSqlStatement = "INSERT INTO[dbo].[TransactionOutput] (TxOutID, TxID, OutputIndex, OutputValue, OutputScript, AddressID)" +
                                         "SELECT nc.TxOutID, nc.TxID, nc.OutputIndex, nc.OutputValue, nc.OutputScript,nc.AddressID FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[TransactionOutputTableType]";
@@ -1611,6 +1645,7 @@ namespace OrderedBitcoinBlockchainParserToDatabase
                 string TSqlStatement = "INSERT INTO[dbo].[OpreturnOutput] (OpreturnOutID, TxID, OutputIndex, OutputValue, OutputScript, AddressID)" +
                                         "SELECT nc.OpreturnOutID, nc.TxID, nc.OutputIndex, nc.OutputValue, nc.OutputScript,nc.AddressID FROM @NewBulkTestTvp AS nc";
                 SqlCommand cmd = new SqlCommand(TSqlStatement, sqlConnection);
+                cmd.CommandTimeout = 0;
                 SqlParameter catParam = cmd.Parameters.AddWithValue("@NewBulkTestTvp", dataTable);
                 catParam.SqlDbType = SqlDbType.Structured;
                 catParam.TypeName = "[dbo].[OpreturnOutputTableType]";
